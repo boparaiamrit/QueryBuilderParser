@@ -1,6 +1,6 @@
 <?php
 
-namespace timgws;
+namespace Boparaiamrit\QueryBuilderParser;
 
 class QBParseException extends \Exception
 {
