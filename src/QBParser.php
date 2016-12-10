@@ -6,7 +6,7 @@ namespace Boparaiamrit\QueryBuilderParser;
 use Illuminate\Database\Query\Builder;
 use stdClass;
 
-class QueryBuilderParser
+class QBParser
 {
 	use QBPFunctions;
 	

@@ -6,7 +6,7 @@ namespace Boparaiamrit\QueryBuilderParser;
 use Illuminate\Database\Query\Builder;
 use stdClass;
 
-class JoinSupportingQueryBuilderParser extends QueryBuilderParser
+class QBJoinParser extends QueryBuilderParser
 {
 	/**
 	 * @var null|array an associative array of the join fields keyed by fields name, with the following keys
