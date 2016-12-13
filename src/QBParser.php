@@ -4,6 +4,7 @@ namespace Boparaiamrit\QueryBuilderParser;
 
 
 use Illuminate\Database\Query\Builder;
+use MongoDB\BSON\UTCDateTime;
 use stdClass;
 
 class QBParser
@@ -215,6 +216,8 @@ class QBParser
 			return $query;
 		}
 		
+		$value = $this->sanitizeValue($value);
+		
 		return $this->convertIncomingQBtoQuery($query, $rule, $value, $queryCondition);
 	}
 	
@@ -290,6 +293,24 @@ class QBParser
 		 * \o/ Ensure that the value is an array only if it should be.
 		 */
 		$value = $this->getCorrectValue($operator, $rule, $value);
+		
+		return $value;
+	}
+	
+	private function sanitizeValue($value)
+	{
+		try {
+			$Time  = new \DateTime($value);
+			$value = new UTCDateTime(($Time->getTimestamp() * 1000));
+		} catch (\Exception $E) {
+			$int    = intval($value);
+			$double = doubleval($value);
+			if ($int != 0) {
+				$value = $int;
+			} else if ($double != 0.0) {
+				$value = $double;
+			}
+		}
 		
 		return $value;
 	}
