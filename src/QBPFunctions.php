@@ -3,14 +3,13 @@ namespace Boparaiamrit\QueryBuilderParser;
 
 
 use Illuminate\Database\Query\Builder;
-use stdClass;
 
 trait QBPFunctions
 {
 	/**
-	 * @param stdClass $rule
+	 * @param array $rule
 	 */
-	abstract protected function checkRuleCorrect(stdClass $rule);
+	abstract protected function checkRuleCorrect(array $rule);
 	
 	protected $operators = [
 		'equal'            => ['accept_values' => true, 'apply_to' => ['string', 'number', 'datetime']],
@@ -189,44 +188,22 @@ trait QBPFunctions
 	}
 	
 	/**
-	 * Decode the given JSON
-	 *
-	 * @param string incoming json
-	 *
-	 * @throws QBParseException
-	 * @return stdClass
-	 */
-	private function decodeJSON($json)
-	{
-		$query = json_decode($json);
-		
-		if (json_last_error()) {
-			throw new QBParseException('JSON parsing threw an error: ' . json_last_error_msg());
-		}
-		
-		if (!is_object($query)) {
-			throw new QBParseException('The query is not valid JSON');
-		}
-		
-		return $query;
-	}
-	
-	/**
 	 * get a value for a given rule.
 	 *
 	 * throws an exception if the rule is not correct.
 	 *
-	 * @param stdClass $rule
+	 * @param array $rule
 	 *
+	 * @return mixed
 	 * @throws QBRuleException
 	 */
-	private function getRuleValue(stdClass $rule)
+	private function getRuleValue(array $rule)
 	{
 		if (!$this->checkRuleCorrect($rule)) {
 			throw new QBRuleException();
 		}
 		
-		return $rule->value;
+		return $rule['value'];
 	}
 	
 	/**
@@ -250,17 +227,17 @@ trait QBPFunctions
 	 * Some types of SQL Operators (ie, those that deal with lists/arrays) have specific requirements.
 	 * This function enforces those requirements.
 	 *
-	 * @param Builder  $query
-	 * @param stdClass $rule
-	 * @param array    $sqlOperator
-	 * @param array    $value
-	 * @param string   $condition
+	 * @param Builder $query
+	 * @param array   $rule
+	 * @param array   $sqlOperator
+	 * @param array   $value
+	 * @param string  $condition
 	 *
 	 * @throws QBParseException
 	 *
 	 * @return Builder
 	 */
-	protected function makeQueryWhenArray(Builder $query, stdClass $rule, array $sqlOperator, array $value, $condition)
+	protected function makeQueryWhenArray(Builder $query, array $rule, array $sqlOperator, array $value, $condition)
 	{
 		if ($sqlOperator['operator'] == 'IN' || $sqlOperator['operator'] == 'NOT IN') {
 			return $this->makeArrayQueryIn($query, $rule, $sqlOperator['operator'], $value, $condition);
@@ -274,20 +251,21 @@ trait QBPFunctions
 	/**
 	 * Create a 'null' query when required.
 	 *
-	 * @param Builder  $query
-	 * @param stdClass $rule
-	 * @param array    $sqlOperator
-	 * @param array    $value
-	 * @param string   $condition
+	 * @param Builder $query
+	 * @param array   $rule
+	 * @param array   $sqlOperator
+	 * @param string  $condition
 	 *
 	 * @return Builder
+	 * @throws QBParseException
+	 * @internal param array $value
 	 */
-	protected function makeQueryWhenNull(Builder $query, stdClass $rule, array $sqlOperator, $condition)
+	protected function makeQueryWhenNull(Builder $query, array $rule, array $sqlOperator, $condition)
 	{
 		if ($sqlOperator['operator'] == 'NULL') {
-			return $query->whereNull($rule->field, $condition);
+			return $query->whereNull($rule['field'], $condition);
 		} elseif ($sqlOperator['operator'] == 'NOT NULL') {
-			return $query->whereNotNull($rule->field, $condition);
+			return $query->whereNotNull($rule['field'], $condition);
 		}
 		
 		throw new QBParseException('makeQueryWhenNull was called on an SQL operator that is not null');
@@ -298,21 +276,21 @@ trait QBPFunctions
 	 *
 	 * @see makeQueryWhenArray
 	 *
-	 * @param Builder  $query
-	 * @param stdClass $rule
-	 * @param string   $operator
-	 * @param array    $value
-	 * @param string   $condition
+	 * @param Builder $query
+	 * @param array   $rule
+	 * @param string  $operator
+	 * @param array   $value
+	 * @param string  $condition
 	 *
 	 * @return Builder
 	 */
-	private function makeArrayQueryIn(Builder $query, stdClass $rule, $operator, array $value, $condition)
+	private function makeArrayQueryIn(Builder $query, array $rule, $operator, array $value, $condition)
 	{
 		if ($operator == 'NOT IN') {
-			return $query->whereNotIn($rule->field, $value, $condition);
+			return $query->whereNotIn($rule['field'], $value, $condition);
 		}
 		
-		return $query->whereIn($rule->field, $value, $condition);
+		return $query->whereIn($rule['field'], $value, $condition);
 	}
 	
 	
@@ -321,20 +299,20 @@ trait QBPFunctions
 	 *
 	 * @see makeQueryWhenArray
 	 *
-	 * @param Builder  $query
-	 * @param stdClass $rule
-	 * @param array    $value
-	 * @param string   $condition
+	 * @param Builder $query
+	 * @param array   $rule
+	 * @param array   $value
+	 * @param string  $condition
 	 *
 	 * @throws QBParseException when more then two items given for the between
 	 * @return Builder
 	 */
-	private function makeArrayQueryBetween(Builder $query, stdClass $rule, array $value, $condition)
+	private function makeArrayQueryBetween(Builder $query, array $rule, array $value, $condition)
 	{
 		if (count($value) !== 2) {
-			throw new QBParseException("{$rule->field} should be an array with only two items.");
+			throw new QBParseException("{$rule['field']} should be an array with only two items.");
 		}
 		
-		return $query->whereBetween($rule->field, $value, $condition);
+		return $query->whereBetween($rule['field'], $value, $condition);
 	}
 }
