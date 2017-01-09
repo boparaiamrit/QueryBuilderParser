@@ -9,58 +9,58 @@ use timgws\test\Mocks\Connection as MongoDBConnection;
 
 class MongoDBTest extends CommonQueryBuilderTests
 {
-	private $mockConnection;
-	
-	protected function createQueryBuilder()
-	{
-		$this->mockConnection = new MongoDBConnection([
-			'name'     => 'mongodb',
-			'driver'   => 'mongodb',
-			'host'     => '127.0.0.1',
-			'database' => 'unittest',
-		]);
-		$builder              = new Builder($this->mockConnection, new MongoDBProcessor());
-		
-		return $builder;
-	}
-	
-	private function getOptions()
-	{
-		return [
-			'typeMap' => [
-				'root'     => 'array',
-				'document' => 'array']
-		];
-	}
-	
-	public function testSimpleQuery()
-	{
-		$builder = $this->createQueryBuilder()->from('tim');
-		$qb      = $this->getParserUnderTest();
-		
-		$test = $qb->parse($this->simpleQuery, $builder);
-		
-		$wheres = [
-			'price' => [
-				'$lt' => 10.25
-			]
-		];
-		
-		$mock = $this->mockConnection->getCollection('');
-		$mock->shouldReceive('find')
-			 ->once()
-			 ->with($wheres, $this->getOptions())
-			 ->andReturn(new \ArrayIterator([]));
-		
-		$builder->get();
-		
-	}
-	
-	
-	public function testManyNestedQuery()
-	{
-		// $('#builder-basic').queryBuilder('setRules', /** This object */);
-		$json = '{
+    private $mockConnection;
+
+    protected function createQueryBuilder()
+    {
+        $this->mockConnection = new MongoDBConnection([
+            'name'     => 'mongodb',
+            'driver'   => 'mongodb',
+            'host'     => '127.0.0.1',
+            'database' => 'unittest',
+        ]);
+        $builder = new Builder($this->mockConnection, new MongoDBProcessor());
+
+        return $builder;
+    }
+
+    private function getOptions()
+    {
+        return [
+            'typeMap' => [
+                'root'     => 'array',
+                'document' => 'array']
+        ];
+    }
+
+    public function testSimpleQuery()
+    {
+        $builder = $this->createQueryBuilder()->from('tim');
+        $qb = $this->getParserUnderTest();
+
+        $test = $qb->parse($this->simpleQuery, $builder);
+
+        $wheres = [
+            'price' => [
+                '$lt' => 10.25
+            ]
+        ];
+
+        $mock = $this->mockConnection->getCollection('');
+        $mock->shouldReceive('find')
+            ->once()
+            ->with($wheres, $this->getOptions())
+            ->andReturn(new \ArrayIterator([]));
+
+        $builder->get();
+
+    }
+
+
+    public function testManyNestedQuery()
+    {
+        // $('#builder-basic').queryBuilder('setRules', /** This object */);
+        $json = '{
            "condition":"AND",
            "rules":[
               {
@@ -126,20 +126,20 @@ class MongoDBTest extends CommonQueryBuilderTests
               }
            ]
         }';
-		
-		$builder = $this->createQueryBuilder()->from('tim');
-		$qb      = $this->getParserUnderTest();
-		
-		$test = $qb->parse($json, $builder);
-		
-		$wheres = json_decode('{"$and":[{"price":{"$lt":"10.25"}},{"$and":[{"category":{"$in":["1","2"]}},{"$or":[{"name":"dgfssdfg"},{"name":{"$ne":"dgfssdfg"}},{"$and":[{"name":"sadf"},{"name":"sadf"}]}]}]}]}', true);
-		
-		$mock = $this->mockConnection->getCollection('');
-		$mock->shouldReceive('find')
-			 ->once()
-			 ->with($wheres, $this->getOptions())
-			 ->andReturn(new \ArrayIterator([]));
-		
-		$builder->get();
-	}
+
+        $builder = $this->createQueryBuilder()->from('tim');
+        $qb = $this->getParserUnderTest();
+
+        $test = $qb->parse($json, $builder);
+
+        $wheres = json_decode('{"$and":[{"price":{"$lt":"10.25"}},{"$and":[{"category":{"$in":["1","2"]}},{"$or":[{"name":"dgfssdfg"},{"name":{"$ne":"dgfssdfg"}},{"$and":[{"name":"sadf"},{"name":"sadf"}]}]}]}]}', true);
+
+        $mock = $this->mockConnection->getCollection('');
+        $mock->shouldReceive('find')
+            ->once()
+            ->with($wheres, $this->getOptions())
+            ->andReturn(new \ArrayIterator([]));
+
+        $builder->get();
+    }
 }

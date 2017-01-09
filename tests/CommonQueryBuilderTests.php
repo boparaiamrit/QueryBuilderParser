@@ -11,8 +11,8 @@ use timgws\QueryBuilderParser;
 
 class CommonQueryBuilderTests extends \PHPUnit_Framework_TestCase
 {
-	protected $simpleQuery = '{"condition":"AND","rules":[{"id":"price","field":"price","type":"double","input":"text","operator":"less","value":"10.25"}]}';
-	protected $json1       = '{
+    protected $simpleQuery = '{"condition":"AND","rules":[{"id":"price","field":"price","type":"double","input":"text","operator":"less","value":"10.25"}]}';
+    protected $json1 = '{
        "condition":"AND",
        "rules":[
           {
@@ -46,27 +46,27 @@ class CommonQueryBuilderTests extends \PHPUnit_Framework_TestCase
           }
        ]
     }';
-	
-	protected function setUp()
-	{
-	}
-	
-	protected function getParserUnderTest($fields = null)
-	{
-		return new QueryBuilderParser($fields);
-	}
-	
-	protected function createQueryBuilder()
-	{
-		$pdo     = new \PDO('sqlite::memory:');
-		$builder = new Builder(new Connection($pdo), new MySQLGrammar(), new MySQLProcessor());
-		
-		return $builder;
-	}
-	
-	protected function makeJSONForInNotInTest($operator = 'in')
-	{
-		return '{
+
+    protected function setUp()
+    {
+    }
+
+    protected function getParserUnderTest($fields = null)
+    {
+        return new QueryBuilderParser($fields);
+    }
+
+    protected function createQueryBuilder()
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $builder = new Builder(new Connection($pdo), new MySQLGrammar(), new MySQLProcessor());
+
+        return $builder;
+    }
+
+    protected function makeJSONForInNotInTest($operator = 'in')
+    {
+        return '{
            "condition":"AND",
            "rules":[
               {
@@ -93,5 +93,5 @@ class CommonQueryBuilderTests extends \PHPUnit_Framework_TestCase
            ]
         }
         ';
-	}
+    }
 }
